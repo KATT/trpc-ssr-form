@@ -35,6 +35,7 @@ export function useSSRForm<
   const req = utils.ssrContext?.req;
   const onSubmit = form.handleSubmit((values) => {
     mutation.mutate(values);
+    form.reset();
   });
 
   const ssrMutation = useMutation(path + '__mutation', async () => {
