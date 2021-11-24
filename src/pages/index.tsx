@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useSSRForm } from 'utils/useSSRForm';
 import { trpc } from '../utils/trpc';
 import { NextPageWithLayout } from './_app';
 
@@ -11,6 +12,8 @@ const IndexPage: NextPageWithLayout = () => {
       await utils.invalidateQueries(['post.all']);
     },
   });
+
+  const methods = useSSRForm('post.add');
 
   // prefetch all posts for instant navigation
   // useEffect(() => {
@@ -43,42 +46,24 @@ const IndexPage: NextPageWithLayout = () => {
 
       <hr />
 
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          /**
-           * In a real app you probably don't want to use this manually
-           * Checkout React Hook Form - it works great with tRPC
-           * @link https://react-hook-form.com/
-           */
-
-          const $text: HTMLInputElement = (e as any).target.elements.text;
-          const $title: HTMLInputElement = (e as any).target.elements.title;
-          const input = {
-            title: $title.value,
-            text: $text.value,
-          };
-          try {
-            await addPost.mutateAsync(input);
-
-            $title.value = '';
-            $text.value = '';
-          } catch {}
-        }}
-      >
+      <form onSubmit={methods.onSubmit} method="post">
         <label htmlFor="title">Title:</label>
         <br />
         <input
           id="title"
-          name="title"
           type="text"
           disabled={addPost.isLoading}
+          {...methods.form.register('title')}
         />
 
         <br />
         <label htmlFor="text">Text:</label>
         <br />
-        <textarea id="text" name="text" disabled={addPost.isLoading} />
+        <textarea
+          id="text"
+          disabled={addPost.isLoading}
+          {...methods.form.register('text')}
+        />
         <br />
         <input type="submit" disabled={addPost.isLoading} />
         {addPost.error && (

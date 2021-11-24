@@ -83,8 +83,9 @@ export const postRouter = createRouter()
   })
   // delete
   .mutation('delete', {
-    input: z.string().uuid(),
-    async resolve({ input: id, ctx }) {
+    input: z.object({ id: z.string().uuid() }),
+    async resolve({ input, ctx }) {
+      const { id } = input;
       await ctx.prisma.post.delete({ where: { id } });
       return id;
     },
